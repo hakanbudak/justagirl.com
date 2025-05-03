@@ -90,9 +90,8 @@ function drawPlayer() {
 
   ctx.filter = `grayscale(${grayscaleLevel}%)`
   ctx.drawImage(girlImage, player.x, player.y, player.size, player.size)
-  ctx.filter = 'none' // diğer çizimler etkilenmesin
+  ctx.filter = 'none'
 }
-
 
 function drawBoy() {
   if (showBoy.value) {
@@ -177,7 +176,6 @@ function drawHearts() {
 function showFireworks() {
   const fireworks = []
 
-  // 1. Patlama efekti oluştur
   for (let i = 0; i < 100; i++) {
     fireworks.push({
       x: Math.random() * canvasWidth,
@@ -190,19 +188,17 @@ function showFireworks() {
     })
   }
 
-  // 2. Patlamayı frame frame işle
   function animateFireworks() {
     drawFinalScene()
 
-    // Arkayı hafifçe karart (yavaşça sönen efekt)
     fireworksCtx.fillStyle = "rgba(0, 0, 0, 0.2)"
     fireworksCtx.fillRect(0, 0, canvasWidth, canvasHeight)
 
     fireworks.forEach(fx => {
       fx.x += fx.dx
       fx.y += fx.dy
-      fx.dy += 0.002 // yerçekimi
-      fx.life -= 0.005 // daha yavaş sönme
+      fx.dy += 0.002
+      fx.life -= 0.005
 
       if (fx.life > 0) {
         fireworksCtx.beginPath()
@@ -228,7 +224,7 @@ function spawnBirds() {
   for (let i = 0; i < 3; i++) {
     birds.push({
       x: -60 - i * 100,
-      y: 180 + Math.random() * 30,  // ⬅️ Yazının altına indirildi
+      y: 180 + Math.random() * 30,
       speed: 2 + Math.random(),
     })
   }
