@@ -4,8 +4,8 @@
         ref="gameCanvas"
         :width="canvasWidth"
         :height="canvasHeight"
-        class="border border-white"
-    ></canvas>
+        class="w-full max-w-[640px] h-auto aspect-video border border-white"
+    />
 
     <canvas
         ref="fireworksCanvas"
@@ -33,8 +33,8 @@ import boyImgUrl from '../assets/boy-character.png'
 import girlImgUrl from '../assets/justgirl.png'
 import birdImgUrl from '../assets/birds.png'
 
-const canvasWidth = 640
-const canvasHeight = 480
+const canvasWidth = window.innerWidth < 768 ? window.innerWidth : 640
+const canvasHeight = window.innerHeight < 768 ? window.innerHeight - 100 : 480
 const heartCount = 8
 const showBoy = ref(false)
 const hearts = ref([])
@@ -62,6 +62,8 @@ let ctx
 let animationFrame
 let fireworksCtx
 let bgAudio
+let touchStartX = 0
+let touchStartY = 0
 
 const prison = {
   x: canvasWidth - 1000,
@@ -78,6 +80,36 @@ const player = {
   dy: 0,
 }
 
+function handleTouchStart(e) {
+  const touch = e.touches[0]
+  touchStartX = touch.clientX
+  touchStartY = touch.clientY
+}
+
+function handleTouchMove(e) {
+  if (!e.changedTouches) return
+  const touch = e.changedTouches[0]
+  const dx = touch.clientX - touchStartX
+  const dy = touch.clientY - touchStartY
+
+  const absDx = Math.abs(dx)
+  const absDy = Math.abs(dy)
+
+  if (absDx > absDy) {
+    // Yatay kaydırma
+    player.dx = dx > 0 ? player.speed : -player.speed
+    player.dy = 0
+  } else {
+    // Dikey kaydırma
+    player.dy = dy > 0 ? player.speed : -player.speed
+    player.dx = 0
+  }
+}
+
+function handleTouchEnd() {
+  player.dx = 0
+  player.dy = 0
+}
 
 function playFinalMusic() {
   bgAudio = new Audio('../audio/belki.mp3')
@@ -340,15 +372,27 @@ onMounted(() => {
   ctx = gameCanvas.value.getContext('2d')
   spawnHearts()
   fireworksCtx = fireworksCanvas.value.getContext('2d')
+
+  // Masaüstü için
   window.addEventListener('keydown', movePlayer)
   window.addEventListener('keyup', stopPlayer)
+
+  // Mobil için
+  gameCanvas.value.addEventListener('touchstart', handleTouchStart)
+  gameCanvas.value.addEventListener('touchmove', handleTouchMove)
+  gameCanvas.value.addEventListener('touchend', handleTouchEnd)
+
   update()
 })
-
 
 onBeforeUnmount(() => {
   cancelAnimationFrame(animationFrame)
   window.removeEventListener('keydown', movePlayer)
   window.removeEventListener('keyup', stopPlayer)
+
+  gameCanvas.value.removeEventListener('touchstart', handleTouchStart)
+  gameCanvas.value.removeEventListener('touchmove', handleTouchMove)
+  gameCanvas.value.removeEventListener('touchend', handleTouchEnd)
 })
+
 </script>
