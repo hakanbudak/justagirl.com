@@ -29,8 +29,8 @@
 <script setup>
 import {ref, onMounted, onBeforeUnmount, computed} from 'vue'
 import heartImgUrl from '../assets/heart.png'
-import boyImgUrl from '../assets/boy-character.png'
-import girlImgUrl from '../assets/justgirl.png'
+import boyImgUrl from '../assets/boyImgUrl.png'
+import girlImgUrl from '../assets/endgirl.png'
 import birdImgUrl from '../assets/birds.png'
 
 const canvasWidth = window.innerWidth < 768 ? window.innerWidth : 640
@@ -54,7 +54,7 @@ boyImage.src = boyImgUrl
 heartImage.src = heartImgUrl
 birdImage.src = birdImgUrl
 const currentDate = computed(() => {
-  const date = new Date(2024, 3, 25 + collectedCount.value) // Nisan = 3. ay
+  const date = new Date(2024, 6, 3 + collectedCount.value) // Nisan = 3. ay
   return date.toLocaleDateString('tr-TR', { day: 'numeric', month: 'long' })
 })
 
@@ -74,7 +74,7 @@ const prison = {
 const player = {
   x: 50,
   y: 50,
-  size: 60,
+  size: 90,
   speed: 5,
   dx: 0,
   dy: 0,
@@ -173,9 +173,10 @@ function drawFinalScene() {
   fireworksCtx.fillStyle = 'black'
   fireworksCtx.fillRect(0, 0, canvasWidth, canvasHeight)
 
-  fireworksCtx.drawImage(boyImage, 120, canvasHeight - 120, 64, 64)
+  fireworksCtx.drawImage(girlImage, 190, canvasHeight - 120, 94, 94)
 
-  fireworksCtx.drawImage(girlImage, 190, canvasHeight - 120, 64, 64)
+  fireworksCtx.drawImage(boyImage, 120, canvasHeight - 120, 94, 94)
+
 
   fireworksCtx.fillStyle = 'white'
   fireworksCtx.font = 'bold 20px sans-serif'
@@ -192,7 +193,7 @@ function drawFinalScene() {
 
   fireworksCtx.font = 'italic 14px sans-serif'
   fireworksCtx.fillStyle = 'rgba(255,255,255,0.6)'
-  fireworksCtx.fillText("— 2 Mayıs 2025", canvasWidth / 2, 120)
+  fireworksCtx.fillText("— 11 Temmuz 2025", canvasWidth / 2, 120)
 }
 
 
@@ -303,7 +304,7 @@ function collectHearts() {
       heart.collected = true
       collectedCount.value++
 
-      console.log(`💘 Gün ${collectedCount.value + 24} Nisan / Mayıs kalbi toplandı!`)
+      console.log(`💘 Gün ${collectedCount.value + 2} Temmuz / Temmuz kalbi toplandı!`)
 
       if (collectedCount.value === heartCount) {
         endGame()
