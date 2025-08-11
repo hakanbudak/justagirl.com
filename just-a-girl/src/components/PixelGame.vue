@@ -196,7 +196,7 @@ function drawFinalScene() {
 
   fireworksCtx.font = 'italic 14px sans-serif'
   fireworksCtx.fillStyle = 'rgba(255,255,255,0.6)'
-  fireworksCtx.fillText("— 29 Temmuz 2025", canvasWidth / 2, 120)
+  fireworksCtx.fillText("— 12 Ağustos 2025", canvasWidth / 2, 120)
 }
 
 function createMeteor() {
