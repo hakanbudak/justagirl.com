@@ -19,7 +19,7 @@
     </div>
 
     <div v-if="gameOver" class="absolute inset-0 bg-black bg-opacity-80 flex flex-col items-center justify-center text-center">
-      <h1 class="text-4xl text-pink-400 mb-4">🎆 2 Mayıs 🎆</h1>
+      <h1 class="text-4xl text-pink-400 mb-4">🎆 29 Temmuz 🎆</h1>
       <p class="text-xl">Tanıştığımız Gün!<br />Seni çok seviyorum 💖</p>
     </div>
   </div>
@@ -42,7 +42,7 @@ const collectedCount = ref(0)
 const gameOver = ref(false)
 const gameCanvas = ref(null)
 const fireworksCanvas = ref(null)
-const birds = []
+const meteors = []
 
 
 const heartImage = new Image()
@@ -54,7 +54,9 @@ boyImage.src = boyImgUrl
 heartImage.src = heartImgUrl
 birdImage.src = birdImgUrl
 const currentDate = computed(() => {
-  const date = new Date(2024, 6, 3 + collectedCount.value) // Nisan = 3. ay
+  const startDay = 29
+  const startMonth = 6
+  const date = new Date(2024, startMonth, startDay + collectedCount.value)
   return date.toLocaleDateString('tr-TR', { day: 'numeric', month: 'long' })
 })
 
@@ -64,6 +66,7 @@ let fireworksCtx
 let bgAudio
 let touchStartX = 0
 let touchStartY = 0
+let meteorAnimId
 
 const prison = {
   x: canvasWidth - 1000,
@@ -193,9 +196,101 @@ function drawFinalScene() {
 
   fireworksCtx.font = 'italic 14px sans-serif'
   fireworksCtx.fillStyle = 'rgba(255,255,255,0.6)'
-  fireworksCtx.fillText("— 11 Temmuz 2025", canvasWidth / 2, 120)
+  fireworksCtx.fillText("— 29 Temmuz 2025", canvasWidth / 2, 120)
 }
 
+function createMeteor() {
+  // Ekranın sol/üst kenarlarından 45° açıyla diyagonal kayan bir meteor
+  const fromTop = Math.random() < 0.5
+  const startX = fromTop ? Math.random() * canvasWidth * 0.7 : -50
+  const startY = fromTop ? -50 : Math.random() * canvasHeight * 0.3
+
+  const angle = Math.PI / 4 + (Math.random() - 0.5) * 0.2 // ~45°
+  const speed = 6 + Math.random() * 4
+  const length = 60 + Math.random() * 80
+
+  return {
+    x: startX,
+    y: startY,
+    vx: Math.cos(angle) * speed,
+    vy: Math.sin(angle) * speed,
+    length,
+    life: 1,                // 0→yok ol
+    decay: 0.003 + Math.random() * 0.004
+  }
+}
+
+function spawnMeteors(count = 10) {
+  meteors.length = 0
+  for (let i = 0; i < count; i++) {
+    meteors.push(createMeteor())
+  }
+}
+
+function drawMeteor(m) {
+  // Kuyruk
+  const tailX = m.x - m.vx * (m.length / 10)
+  const tailY = m.y - m.vy * (m.length / 10)
+
+  fireworksCtx.save()
+  fireworksCtx.globalCompositeOperation = 'lighter'
+  fireworksCtx.globalAlpha = Math.max(0, m.life)
+
+  // Kuyruk çizgisi
+  fireworksCtx.beginPath()
+  fireworksCtx.moveTo(m.x, m.y)
+  fireworksCtx.lineTo(tailX, tailY)
+  fireworksCtx.lineWidth = 2
+  fireworksCtx.strokeStyle = 'rgba(255,255,255,0.9)'
+  fireworksCtx.stroke()
+
+  // Baş kısım (parlayan)
+  const grd = fireworksCtx.createRadialGradient(m.x, m.y, 0, m.x, m.y, 6)
+  grd.addColorStop(0, 'rgba(255,255,255,1)')
+  grd.addColorStop(1, 'rgba(255,255,255,0)')
+  fireworksCtx.fillStyle = grd
+  fireworksCtx.beginPath()
+  fireworksCtx.arc(m.x, m.y, 6, 0, Math.PI * 2)
+  fireworksCtx.fill()
+
+  fireworksCtx.restore()
+}
+
+function animateMeteorShower() {
+  // Final sahne arkaplanı + metin (her karede tazeliyoruz)
+  drawFinalScene()
+
+  // Hafif motion blur / iz efekti
+  fireworksCtx.fillStyle = 'rgba(0,0,0,0.20)'
+  fireworksCtx.fillRect(0, 0, canvasWidth, canvasHeight)
+
+  // Meteorları güncelle/çiz
+  for (let i = 0; i < meteors.length; i++) {
+    const m = meteors[i]
+    m.x += m.vx
+    m.y += m.vy
+    m.life -= m.decay
+
+    drawMeteor(m)
+
+    // Ekranı terk ettiyse veya söndüyse yenile
+    if (
+        m.life <= 0 ||
+        m.x > canvasWidth + 100 ||
+        m.y > canvasHeight + 100
+    ) {
+      meteors[i] = createMeteor()
+    }
+  }
+
+  meteorAnimId = requestAnimationFrame(animateMeteorShower)
+}
+
+function startMeteorShower() {
+  cancelAnimationFrame(meteorAnimId)
+  spawnMeteors(14) // 12 Ağustos’a selam: 12–16 arası güzel duruyor
+  animateMeteorShower()
+}
 
 
 function drawHearts() {
@@ -252,37 +347,6 @@ function showFireworks() {
   animateFireworks()
 }
 
-function spawnBirds() {
-  birds.length = 0
-  for (let i = 0; i < 3; i++) {
-    birds.push({
-      x: -60 - i * 100,
-      y: 180 + Math.random() * 30,
-      speed: 2 + Math.random(),
-    })
-  }
-}
-
-
-
-function drawBirds() {
-  const birdImage = new Image()
-  birdImage.src = birdImgUrl
-
-
-  function animateBirds() {
-    drawFinalScene()
-
-    birds.forEach((b) => {
-      b.x += b.speed
-      fireworksCtx.drawImage(birdImage, b.x, b.y, 32, 32)
-    })
-
-    requestAnimationFrame(animateBirds)
-  }
-  animateBirds()
-}
-
 function endGame() {
   gameOver.value = true
   cancelAnimationFrame(animationFrame)
@@ -291,9 +355,7 @@ function endGame() {
   drawFinalScene()
   showFireworks()
   playFinalMusic()
-  spawnBirds()
-  drawBirds()
-
+  startMeteorShower()
 }
 
 
@@ -388,6 +450,7 @@ onMounted(() => {
 
 onBeforeUnmount(() => {
   cancelAnimationFrame(animationFrame)
+  cancelAnimationFrame(meteorAnimId)
   window.removeEventListener('keydown', movePlayer)
   window.removeEventListener('keyup', stopPlayer)
 
