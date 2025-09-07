@@ -54,8 +54,8 @@ boyImage.src = boyImgUrl
 heartImage.src = heartImgUrl
 birdImage.src = birdImgUrl
 const currentDate = computed(() => {
-  const startDay = 29
-  const startMonth = 6
+  const startDay = 1
+  const startMonth = 8
   const date = new Date(2024, startMonth, startDay + collectedCount.value)
   return date.toLocaleDateString('tr-TR', { day: 'numeric', month: 'long' })
 })
@@ -196,7 +196,7 @@ function drawFinalScene() {
 
   fireworksCtx.font = 'italic 14px sans-serif'
   fireworksCtx.fillStyle = 'rgba(255,255,255,0.6)'
-  fireworksCtx.fillText("— 12 Ağustos 2025", canvasWidth / 2, 120)
+  fireworksCtx.fillText("— 7 Eylül 2025", canvasWidth / 2, 120)
 }
 
 function createMeteor() {
